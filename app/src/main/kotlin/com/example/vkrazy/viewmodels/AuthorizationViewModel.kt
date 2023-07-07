@@ -14,7 +14,6 @@ import com.example.vkrazy.R
 
 class AuthorizationViewModel(private val application: Application) : AndroidViewModel(application) {
     private lateinit var accountManager: AccountManager
-
     val loginLiveData = MutableLiveData<String>()
 
     fun getAuthUrl() = buildString {

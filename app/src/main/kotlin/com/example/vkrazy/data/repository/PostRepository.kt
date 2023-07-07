@@ -1,5 +1,6 @@
 package com.example.vkrazy.data.repository
 
+import android.util.Log
 import com.example.vkrazy.data.local.FeedItem
 import com.example.vkrazy.data.local.PostItemDao
 import com.example.vkrazy.data.local.PostItemEntity
@@ -11,6 +12,7 @@ class PostRepository(
     private val accessToken: String
 ) {
     private fun convertFeedItemsToEntities(feedItems: List<FeedItem>): List<PostItemEntity> {
+        Log.d("PostRepository", "convertFeedItemsToEntities()")
         return feedItems.map { feedItem ->
             PostItemEntity(
                 id = feedItem.id,
@@ -25,7 +27,7 @@ class PostRepository(
                 can_doubt_category = false,
                 attachments = "",
                 is_favorite = false,
-                likes = feedItem.likesText.toInt(),
+                likes = feedItem.likesText.replace(" likes", "").toInt(),
                 owner_id = feedItem.username.toLong(),
                 post_id = 0,
                 post_source = "",
@@ -38,6 +40,7 @@ class PostRepository(
     }
 
     private suspend fun getPostsFromInternet(): List<FeedItem>? {
+        Log.d("PostRepository", "getPostsFromInternet()")
         val response = apiService.getNewsFeed(
             accessToken = accessToken,
             apiVersion = "5.131"
@@ -61,6 +64,7 @@ class PostRepository(
     }
 
     suspend fun saveFirst20Posts() {
+        Log.d("PostRepository", "saveFirst20Posts()")
         val posts = getPostsFromInternet()
         if (!posts.isNullOrEmpty()) {
             val entities = convertFeedItemsToEntities(posts)
@@ -69,6 +73,7 @@ class PostRepository(
     }
 
     suspend fun getPosts(): List<FeedItem>? {
+        Log.d("PostRepository", "getPosts()")
         val posts = getPostsFromInternet()
         if (!posts.isNullOrEmpty()) {
             return posts
