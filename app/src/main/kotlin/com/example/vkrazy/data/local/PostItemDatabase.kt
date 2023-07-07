@@ -6,32 +6,32 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.vkrazy.viewmodels.MyApplication
 
-// Define a database class that holds the PostItem table and the DAO
 @Database(entities = [PostItemEntity::class], version = 1, exportSchema = false)
 abstract class PostItemDatabase : RoomDatabase() {
-
     abstract fun postItemDao(): PostItemDao
 
     companion object {
-        // Singleton instance of the database
         @Volatile
         private var INSTANCE: PostItemDatabase? = null
 
-        // Get or create the database instance
+        // get or create db instance
         fun getDatabase(context: Context): PostItemDatabase {
             return INSTANCE ?: synchronized(this) {
                 Room.databaseBuilder(
                     context.applicationContext,
                     PostItemDatabase::class.java,
-                    "post_item_database"
+                    POST_DB_NAME
                 )
-                    .fallbackToDestructiveMigration() // add this method to handle schema changes
+                    .fallbackToDestructiveMigration() // handle schema changes
                     .build()
                     .also { instance ->
-                        INSTANCE = instance // assign the instance to the variable first
-                        (context.applicationContext as MyApplication).feedComponent.inject(instance) // use the also scope function to perform the injection
+                        INSTANCE = instance
+                        (context.applicationContext as MyApplication).feedComponent.inject(instance)
                     }
             }
         }
+
+        private const val POST_DB_NAME = "post_item_database"
+        const val POST_ITEM_TABLE = "post_item_table"
     }
 }

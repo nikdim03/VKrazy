@@ -5,13 +5,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.vkrazy.R
 import com.example.vkrazy.data.local.FeedItem
 import de.hdodenhof.circleimageview.CircleImageView
 
-class FeedAdapter(private var data: List<FeedItem>) :
+class FeedAdapter(private var data: MutableList<FeedItem>) :
     RecyclerView.Adapter<FeedAdapter.FeedViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedViewHolder {
@@ -22,7 +23,6 @@ class FeedAdapter(private var data: List<FeedItem>) :
 
     override fun onBindViewHolder(holder: FeedViewHolder, position: Int) {
         val item = data[position]
-        // Bind the data to the views in the ViewHolder
         holder.bind(item)
     }
 
@@ -57,8 +57,10 @@ class FeedAdapter(private var data: List<FeedItem>) :
     }
 
     fun setData(newData: List<FeedItem>) {
-        data = newData
-        notifyDataSetChanged()
-//        diffutils
+        val diffCallback = FeedDiffCallback(data, newData)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        data.clear()
+        data.addAll(newData)
+        diffResult.dispatchUpdatesTo(this)
     }
 }

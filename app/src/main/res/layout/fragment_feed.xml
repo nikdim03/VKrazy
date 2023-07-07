@@ -22,9 +22,9 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingTop="12dp"
-                android:paddingBottom="10dp"
-                android:src="@drawable/instagram"
+                android:paddingTop="0dp"
+                android:paddingBottom="0dp"
+                android:src="@drawable/logo"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

@@ -24,7 +24,7 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         Log.d("FeedFragment", "onViewCreated()")
         (requireActivity().application as MyApplication).feedComponent.inject(this)
 
-        adapter = FeedAdapter(emptyList())
+        adapter = FeedAdapter(mutableListOf())
         binding.feedRecycler.adapter = adapter
         binding.feedRecycler.layoutManager = LinearLayoutManager(requireContext())
         viewModel.onViewCreated()

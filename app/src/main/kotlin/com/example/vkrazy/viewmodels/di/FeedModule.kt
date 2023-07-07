@@ -1,10 +1,13 @@
 package com.example.vkrazy.viewmodels.di
 
 import android.app.Application
+import android.content.Context
 import com.example.vkrazy.data.local.PostItemDao
 import com.example.vkrazy.data.local.PostItemDatabase
 import com.example.vkrazy.data.remote.VKApiService
 import com.example.vkrazy.data.repository.PostRepository
+import com.example.vkrazy.viewmodels.AuthorizationViewModel.Companion.AUTH_PREFERENCES
+import com.example.vkrazy.viewmodels.AuthorizationViewModel.Companion.AUTH_TOKEN
 import com.example.vkrazy.viewmodels.FeedViewModel
 import dagger.Module
 import dagger.Provides
@@ -44,8 +47,20 @@ class FeedModule(private val application: Application) {
 
     @Singleton
     @Provides
-    fun providePostRepository(apiService: VKApiService, postItemDao: PostItemDao): PostRepository {
-        return PostRepository(apiService, postItemDao)
+    fun providePostRepository(
+        apiService: VKApiService,
+        postItemDao: PostItemDao
+    ): PostRepository {
+        val sharedPreferences = application.getSharedPreferences(
+            AUTH_PREFERENCES,
+            Context.MODE_PRIVATE
+        )
+        return PostRepository(
+            apiService, postItemDao, sharedPreferences.getString(
+                AUTH_TOKEN,
+                ""
+            ) ?: ""
+        )
     }
 
     @Singleton

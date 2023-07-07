@@ -1,6 +1,8 @@
 package com.example.vkrazy.views.fragments
 
+import android.accounts.AccountManager
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -8,18 +10,20 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import com.example.authenticator.AuthenticationHelper
 import com.example.vkrazy.R
 import com.example.vkrazy.databinding.FragmentAuthorizationBinding
 import com.example.vkrazy.viewmodels.AuthorizationViewModel
-import kotlinx.coroutines.delay
 
 class AuthorizationFragment : Fragment() {
     private lateinit var binding: FragmentAuthorizationBinding
-    private val authorizationViewModel: AuthorizationViewModel by viewModels()
+    private val viewModel: AuthorizationViewModel by viewModels()
+    private lateinit var accountManager: AccountManager
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreateView(
@@ -33,14 +37,9 @@ class AuthorizationFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        lifecycleScope.launchWhenStarted {
-            authorizationViewModel.goToFeedEventFlow.collect {
-                delay(5000)
-                goToFeed()
-            }
-        }
         setupWebView()
-        loadAuthorizationUrl()
+        loadAuthUrl()
+        handleAccountLogin()
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -49,43 +48,48 @@ class AuthorizationFragment : Fragment() {
             settings.javaScriptEnabled = true
             webViewClient = object : WebViewClient() {
                 override fun onPageFinished(view: WebView, url: String) {
-                    Log.d("setupWebView", "$url")
+                    Log.d("AuthorizationFragment", "setupWebView with: $url")
                     super.onPageFinished(view, url)
-//                    вынести в вьюмодель
-                    if (url.startsWith(getString(R.string.redirect_uri).lowercase())) {
-                        handleAccessToken(url)
-                    }
+                    viewModel.handleUrl(url)
                 }
             }
         }
     }
 
-    private fun loadAuthorizationUrl() {
+    private fun loadAuthUrl() {
         binding.webView.loadUrl(
-            authorizationViewModel.getAuthUrl(
-                client = getString(R.string.client),
-                groups = getString(R.string.groups),
-                redirectUri = getString(R.string.redirect_uri),
-                scope = getString(R.string.scope),
-                v = getString(R.string.v)
-            )
+            viewModel.getAuthUrl()
         )
     }
 
-    private fun handleAccessToken(url: String) {
-        Log.d("context", context.toString())
-        context?.let {
-            activity?.let { it1 ->
-                authorizationViewModel.processAccessToken(
-                    url, it,
-                    it1
-                )
-            }
-        }
+    private fun handleAccountLogin() {
+        accountManager = AccountManager.get(requireActivity())
+        viewModel.loginLiveData.observe(viewLifecycleOwner, Observer {
+            addNewAccount(
+                AuthenticationHelper.ACCOUNT_TYPE,
+                AuthenticationHelper.TOKEN_TYPE, requireActivity()
+            )
+            goToFeed()
+        })
+    }
+
+    private fun addNewAccount(accountType: String, authTokenType: String, activity: Activity) {
+        Log.d("AuthorizationFragment", "addNewAccount")
+        accountManager.addAccount(
+            accountType, authTokenType, null, null, activity,
+            { future ->
+                try {
+                    val result = future.result
+                    Toast.makeText(activity, "$result", Toast.LENGTH_SHORT).show()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }, null
+        )
     }
 
     private fun goToFeed() {
-        Log.d("goToFeed", "goToFeed")
+        Log.d("AuthorizationFragment", "goToFeed")
         findNavController().navigate(R.id.secondFragment)
     }
 }

@@ -2,8 +2,10 @@
     <string name="app_name">VKrazy</string>
     <string name="client">51662865</string>
     <string name="groups"></string>
+    <string name="display">mobile</string>
     <string name="redirect_uri">https://oauth.vk.com/blank.html</string>
     <string name="scope">friends,notify,photos,wall,email,mail,groups,stats,offline</string>
+    <string name="response_type">token</string>
     <string name="v">5.131</string>
 
     <string name="auth_type">oauth2</string>

@@ -11,7 +11,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         feedComponent = DaggerFeedComponent.builder()
-            .feedModule(FeedModule(this)) // Pass the necessary dependencies to the builder
+            .feedModule(FeedModule(this))
             .build()
     }
 }

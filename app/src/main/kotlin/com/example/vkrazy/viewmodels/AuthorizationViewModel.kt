@@ -8,89 +8,51 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.viewModelScope
-import com.example.authenticator.AuthenticationHelper.ACCOUNT_TYPE
-import com.example.authenticator.AuthenticationHelper.TOKEN_TYPE
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import androidx.lifecycle.MutableLiveData
+import com.example.authenticator.AuthenticationHelper
+import com.example.vkrazy.R
 
 class AuthorizationViewModel(private val application: Application) : AndroidViewModel(application) {
     private lateinit var accountManager: AccountManager
 
-    private val eventChannel = Channel<Unit>()
-    val goToFeedEventFlow: Flow<Unit> = eventChannel.receiveAsFlow()
+    val loginLiveData = MutableLiveData<String>()
 
-    fun getAuthUrl(
-        client: String,
-        groups: String,
-        redirectUri: String,
-        scope: String,
-        v: String
-    ) = buildString {
+    fun getAuthUrl() = buildString {
         append("https://oauth.vk.com/authorize?")
         append("client_id=")
-        append(client)
+        append(application.getString(R.string.client))
         append("&group_ids=")
-        append(groups)
-        append("&display=mobile")
+        append(application.getString(R.string.groups))
+        append("&display=")
+        append(application.getString(R.string.display))
         append("&redirect_uri=")
-        append(redirectUri)
+        append(application.getString(R.string.redirect_uri))
         append("&scope=")
-        append(scope)
-        append("&response_type=token")
+        append(application.getString(R.string.scope))
+        append("&response_type=")
+        append(application.getString(R.string.response_type))
         append("&v=")
-        append(v)
+        append(application.getString(R.string.v))
     }
 
-    fun processAccessToken(url: String, context: Context, activity: Activity) {
-////        val accountManager = AccountManager.get(getApplication<Application>().applicationContext)
-////        Log.d("accountManager", accountManager.toString())
-//        val accountName = "VKrazy VK Account"
-//        val accountType = "com.example.vkrazy.vkaccount"
+    fun handleUrl(url: String) {
+        if (url.startsWith(application.resources.getString(R.string.redirect_uri).lowercase())) {
+            processAccessToken(url)
+        }
+    }
+
+    private fun processAccessToken(url: String) {
         val authToken = url.substringAfter("access_token=").substringBefore("&")
-////
         Log.d("processAccessToken", authToken)
-////        val account = Account(accountName, accountType)
-////        Log.d("account", account.toString())
-////        accountManager.addAccount(account)
-////        accountManager.addAccountExplicitly(account, null, null)
-////        accountManager.setAuthToken(account, accountType, authToken)
-////        Log.d("processAccessToken", "made it")
-//
-//
-//
-//        val accountManager = AccountManager.get(context)
-//        val account = Account(accountName, accountType)
-//
-//        // Set the user data associated with the account (optional)
-//        val userData = Bundle()
-//        userData.putString("key", "value")
-//
-//        // Add the account to the AccountManager
-//        val accountAdded = accountManager.addAccountExplicitly(account, authToken, userData)
-//
-//        // Perform any additional operations if the account was added successfully
-//        if (accountAdded) {
-//            Log.d("accountAdded", accountManager.getPassword(account))
-//            // Perform necessary actions, such as storing the account details
-//            // or redirecting the user to the account setup process
-//        } else {
-//            Log.d("not added", "failure")
-//            // Account addition failed, handle the error
-//        }
-        accountManager = AccountManager.get(application.applicationContext)
-        Log.d("accountManager", accountManager.toString())
-        addNewAccount(ACCOUNT_TYPE, TOKEN_TYPE, activity)
-        ACCESS_TOKEN = authToken
-        navigateToFeed()
+        val sharedPreferences =
+            application.getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE)
+        sharedPreferences.edit().putString(AUTH_TOKEN, authToken).apply()
+        loginLiveData.postValue(authToken)
     }
 
     private fun getAccountsWithAuthToken(callback: (Account) -> Unit, activity: Activity) {
-        accountManager.getAccountsByType(ACCOUNT_TYPE).forEach {
-            val token = accountManager.peekAuthToken(it, TOKEN_TYPE)
+        accountManager.getAccountsByType(AuthenticationHelper.ACCOUNT_TYPE).forEach {
+            val token = accountManager.peekAuthToken(it, AuthenticationHelper.TOKEN_TYPE)
 
             if (token != null) {
                 callback.invoke(it)
@@ -100,29 +62,8 @@ class AuthorizationViewModel(private val application: Application) : AndroidView
         }
     }
 
-    private fun addNewAccount(accountType: String, authTokenType: String, activity: Activity) {
-        Log.d("addNewAccount", "addNewAccount")
-        accountManager.addAccount(
-            accountType, authTokenType, null, null, activity,
-            { future ->
-                try {
-                    val result = future.result
-
-                    Toast.makeText(activity, "$result", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }, null
-        )
-    }
-
-    private fun navigateToFeed() {
-        viewModelScope.launch {
-            eventChannel.send(Unit)
-        }
-    }
-
     companion object {
-        var ACCESS_TOKEN = ""
+        var AUTH_PREFERENCES = "auth_preferences"
+        var AUTH_TOKEN = "auth_token"
     }
 }
