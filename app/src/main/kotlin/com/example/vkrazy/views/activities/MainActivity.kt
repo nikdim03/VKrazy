@@ -2,6 +2,7 @@ package com.example.vkrazy.views.activities
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
@@ -22,6 +23,7 @@ class MainActivity : AppCompatActivity() {
         navController =
             (supportFragmentManager.findFragmentById(R.id.navHostFragment) as NavHostFragment).navController
         val sharedPreferences = getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE)
+        Log.d("MainActivity", "${sharedPreferences.getString(AUTH_TOKEN, null)}")
         if (sharedPreferences.getString(AUTH_TOKEN, null) == null) {
             navController.navigate(R.id.firstFragment)
         } else {

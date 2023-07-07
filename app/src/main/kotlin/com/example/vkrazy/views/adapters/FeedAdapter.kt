@@ -1,24 +1,21 @@
 package com.example.vkrazy.views.adapters
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.vkrazy.R
 import com.example.vkrazy.data.local.FeedItem
-import de.hdodenhof.circleimageview.CircleImageView
+import com.example.vkrazy.databinding.FeedItemBinding
 
 class FeedAdapter(private var data: MutableList<FeedItem>) :
     RecyclerView.Adapter<FeedAdapter.FeedViewHolder>() {
+    private lateinit var binding: FeedItemBinding
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.feed_item, parent, false)
-        return FeedViewHolder(view)
+        binding = FeedItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return FeedViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: FeedViewHolder, position: Int) {
@@ -30,29 +27,22 @@ class FeedAdapter(private var data: MutableList<FeedItem>) :
         return data.size
     }
 
-    class FeedViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        // Initialize views using findViewById or View Binding
-        private val userPhotoImageView: CircleImageView =
-            itemView.findViewById(R.id.user_photo_image)
-        private val usernameTextView: TextView = itemView.findViewById(R.id.username_text)
-        private val postImageView: ImageView = itemView.findViewById(R.id.post_image)
-        private val likesTextView: TextView = itemView.findViewById(R.id.likes_text)
-        private val captionTextView: TextView = itemView.findViewById(R.id.caption_text)
-
+    class FeedViewHolder(private val binding: FeedItemBinding) :
+        RecyclerView.ViewHolder(binding.root) {
         fun bind(item: FeedItem) {
             if (item.userPhoto is String) {
-                Glide.with(itemView).load(item.userPhoto).into(userPhotoImageView)
+                Glide.with(binding.root).load(item.userPhoto).into(binding.userPhotoImage)
             } else {
-                userPhotoImageView.setImageResource(R.drawable.person)
+                binding.userPhotoImage.setImageResource(R.drawable.person)
             }
             if (item.postImage is String) {
-                Glide.with(itemView).load(item.postImage).into(userPhotoImageView)
+                Glide.with(binding.root).load(item.postImage).into(binding.postImage)
             } else {
-                postImageView.setImageResource(R.drawable.image_placeholder)
+                binding.postImage.setImageResource(R.drawable.image_placeholder)
             }
-            usernameTextView.text = item.username
-            likesTextView.text = item.likesText
-            captionTextView.text = item.captionText
+            binding.usernameText.text = item.username
+            binding.likesText.text = item.likesText
+            binding.captionText.text = item.captionText
         }
     }
 
