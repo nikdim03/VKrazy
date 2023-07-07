@@ -6,16 +6,13 @@ import dagger.Component
 import javax.inject.Singleton
 
 @Singleton
-@Component(
-    modules = [
-        FeedModule::class,
-    ]
-)
+@Component(modules = [FeedModule::class])
 interface ApplicationComponent {
     @Component.Builder
     interface Builder {
         @BindsInstance
         fun application(application: Application): Builder
+        fun feedModule(feedModule: FeedModule): Builder
         fun build(): ApplicationComponent
     }
 }

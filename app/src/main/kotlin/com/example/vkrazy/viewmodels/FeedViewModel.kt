@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.vkrazy.data.local.FeedItem
 import com.example.vkrazy.data.repository.PostRepository
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 class FeedViewModel(private val postRepository: PostRepository) : ViewModel() {
     private val _feedItems = MutableLiveData<List<FeedItem>?>()
@@ -32,6 +31,13 @@ class FeedViewModel(private val postRepository: PostRepository) : ViewModel() {
         viewModelScope.launch {
             val response = postRepository.getPosts()
             _feedItems.value = response
+        }
+    }
+
+    fun onDestroyView() {
+//        save posts
+        viewModelScope.launch {
+            postRepository.saveFirst20Posts()
         }
     }
 }
