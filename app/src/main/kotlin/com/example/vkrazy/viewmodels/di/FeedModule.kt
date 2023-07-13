@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import com.example.vkrazy.data.local.PostItemDao
 import com.example.vkrazy.data.local.PostItemDatabase
+import com.example.vkrazy.data.remote.NetworkConstants.Companion.BASE_URL
 import com.example.vkrazy.data.remote.VKApiService
 import com.example.vkrazy.data.repository.PostRepository
 import com.example.vkrazy.viewmodels.AuthorizationViewModel.Companion.AUTH_PREFERENCES
@@ -21,7 +22,7 @@ class FeedModule(private val application: Application) {
     @Provides
     fun provideVKApiService(): VKApiService {
         val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.vk.com/")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
         return retrofit.create(VKApiService::class.java)
