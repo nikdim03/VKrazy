@@ -9,8 +9,11 @@ import com.example.vkrazy.data.repository.PostRepository
 import kotlinx.coroutines.launch
 
 class FeedViewModel(private val postRepository: PostRepository) : ViewModel() {
-    private val _feedItems = MutableLiveData<List<FeedItem>?>()
+//    TODO:
+//    flow
+private val _feedItems = MutableLiveData<List<FeedItem>?>()
     val feedItems: MutableLiveData<List<FeedItem>?> = _feedItems
+    var offset = 0
 
     init {
         val testData = listOf(
@@ -30,15 +33,35 @@ class FeedViewModel(private val postRepository: PostRepository) : ViewModel() {
     fun onViewCreated() {
 //        fetch posts
         viewModelScope.launch {
-            val response = postRepository.getPosts()
-            _feedItems.value = response
+            val response = postRepository.getPosts(offset, POST_COUNT_DEFAULT)
+            _feedItems.value = appendPosts(_feedItems.value, response)
+            offset += POST_COUNT_DEFAULT
         }
     }
 
     fun onDestroyView() {
 //        save posts
         viewModelScope.launch {
-            postRepository.saveFirst20Posts()
+            postRepository.savePosts(offset)
         }
+    }
+
+    private fun appendPosts(oldPosts: List<FeedItem>?, newPosts: List<FeedItem>?): List<FeedItem>? {
+        return if (oldPosts == null) {
+            newPosts
+        } else if (newPosts == null) {
+            oldPosts
+        } else {
+            oldPosts + newPosts
+        }
+    }
+
+    fun sendPost(text: String, isPrivate: Boolean) {
+        postRepository.makePost("$text\n\nSent from VKrazy Mobile App", isPrivate)
+    }
+
+    companion object {
+        const val POST_COUNT_DEFAULT = 20
+        const val TAG = "FeedViewModel"
     }
 }

@@ -10,11 +10,9 @@ interface PostItemDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(postItems: List<PostItemEntity>)
 
-    @Query("SELECT * FROM post_item_table LIMIT 20")
 //    TODO:
-//    getposts(offset = 0, count = 20) - get first 20
-//    getposts(offset = 20, count = 20) - get second 20
-//    или page()
-//    поэксперементировать с возвратом флоу от List<PostItemEntity>
-    suspend fun getFirst20(): List<PostItemEntity>
+//    experiment with returning flow from List<PostItemEntity>
+//    read about page()
+@Query("SELECT * FROM post_item_table LIMIT :count OFFSET :offset")
+suspend fun getPosts(offset: Int, count: Int): List<PostItemEntity>
 }

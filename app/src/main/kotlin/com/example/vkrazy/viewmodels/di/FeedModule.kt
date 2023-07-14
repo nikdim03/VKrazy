@@ -60,7 +60,7 @@ class FeedModule(private val application: Application) {
             apiService, postItemDao, sharedPreferences.getString(
                 AUTH_TOKEN,
                 ""
-            ) ?: ""
+            ) ?: "", application.baseContext
         )
     }
 

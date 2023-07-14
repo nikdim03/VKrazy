@@ -1,5 +1,7 @@
 package com.example.vkrazy.views.adapters
 
+import android.graphics.BitmapFactory
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -20,6 +22,7 @@ class ImageFeedItemAdapter(private val photoItems: MutableList<ImageFeedItem>) :
 
 
     override fun onBindViewHolder(holder: ImageFeedItemViewHolder, position: Int) {
+        Log.d(TAG, "position = $position")
         val item = photoItems[position]
         holder.bind(item)
     }
@@ -37,7 +40,14 @@ class ImageFeedItemAdapter(private val photoItems: MutableList<ImageFeedItem>) :
                 binding.userPhotoImage.setImageResource(R.drawable.person)
             }
             if (item.postImage is String) {
-                Glide.with(binding.root).load(item.postImage).into(binding.postImage)
+                if (item.postImage.startsWith("https://")) {
+                    Glide.with(binding.root).load(item.postImage).into(binding.postImage)
+                } else {
+                    // Get the bitmap from the path
+                    val bitmap = BitmapFactory.decodeFile(item.postImage)
+                    // Set the bitmap to the post image view
+                    binding.postImage.setImageBitmap(bitmap)
+                }
             } else {
                 binding.postImage.setImageResource(R.drawable.image_placeholder)
             }
@@ -53,5 +63,9 @@ class ImageFeedItemAdapter(private val photoItems: MutableList<ImageFeedItem>) :
         photoItems.clear()
         photoItems.addAll(newData)
         diffResult.dispatchUpdatesTo(this)
+    }
+
+    companion object {
+        const val TAG = "ImageFeedItemAdapter"
     }
 }

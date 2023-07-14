@@ -1,5 +1,6 @@
 package com.example.vkrazy.views.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -19,6 +20,7 @@ class TextFeedItemAdapter(private val textItems: MutableList<TextFeedItem>) :
     }
 
     override fun onBindViewHolder(holder: TextFeedItemViewHolder, position: Int) {
+        Log.d(TAG, "position = $position")
         val item = textItems[position]
         holder.bind(item)
     }
@@ -47,5 +49,9 @@ class TextFeedItemAdapter(private val textItems: MutableList<TextFeedItem>) :
         textItems.clear()
         textItems.addAll(newData)
         diffResult.dispatchUpdatesTo(this)
+    }
+
+    companion object {
+        const val TAG = "TextFeedItemAdapter"
     }
 }

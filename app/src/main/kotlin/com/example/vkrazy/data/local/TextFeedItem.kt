@@ -6,7 +6,7 @@ data class TextFeedItem(
     val username: String,
     val likesText: String,
     val captionText: String
-) : FeedItem, Equatable {
+) : FeedItem {
     override fun getViewType(): Int {
         return TEXT_FEED_ITEM_TYPE
     }

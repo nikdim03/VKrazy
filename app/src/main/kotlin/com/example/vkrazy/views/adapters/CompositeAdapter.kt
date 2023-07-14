@@ -1,5 +1,6 @@
 package com.example.vkrazy.views.adapters
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -14,6 +15,9 @@ class CompositeAdapter(private var data: MutableList<Equatable>) :
     private val textFeedItemAdapter =
         TextFeedItemAdapter(data.filterIsInstance<TextFeedItem>() as MutableList<TextFeedItem>)
 
+    private var imageItemPosition = 0
+    private var textItemPosition = 0
+    private var prevPos = 0
     fun setData(newData: MutableList<Equatable>) {
         val diffCallback = object : DiffUtil.Callback() {
             override fun getOldListSize(): Int {
@@ -60,16 +64,37 @@ class CompositeAdapter(private var data: MutableList<Equatable>) :
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        Log.d(TAG, "onBindViewHolder(position = ${holder.absoluteAdapterPosition})")
         when (holder.itemViewType) {
-            PHOTO_FEED_ITEM_TYPE -> imageFeedItemAdapter.onBindViewHolder(
-                holder as ImageFeedItemAdapter.ImageFeedItemViewHolder,
-                position
-            )
+            PHOTO_FEED_ITEM_TYPE -> {
+                imageItemPosition = if (prevPos > holder.absoluteAdapterPosition) {
+                    imageItemPosition - 1
+                } else if (prevPos == holder.absoluteAdapterPosition) {
+                    imageItemPosition
+                } else {
+                    imageItemPosition + 1
+                }
+                imageFeedItemAdapter.onBindViewHolder(
+                    holder as ImageFeedItemAdapter.ImageFeedItemViewHolder,
+                    imageItemPosition
+                )
+                prevPos = holder.absoluteAdapterPosition
+            }
 
-            TEXT_FEED_ITEM_TYPE -> textFeedItemAdapter.onBindViewHolder(
-                holder as TextFeedItemAdapter.TextFeedItemViewHolder,
-                position
-            )
+            TEXT_FEED_ITEM_TYPE -> {
+                textItemPosition = if (prevPos > holder.absoluteAdapterPosition) {
+                    textItemPosition - 1
+                } else if (prevPos == holder.absoluteAdapterPosition) {
+                    textItemPosition
+                } else {
+                    textItemPosition + 1
+                }
+                textFeedItemAdapter.onBindViewHolder(
+                    holder as TextFeedItemAdapter.TextFeedItemViewHolder,
+                    textItemPosition
+                )
+                prevPos = holder.absoluteAdapterPosition
+            }
         }
     }
 
@@ -80,5 +105,6 @@ class CompositeAdapter(private var data: MutableList<Equatable>) :
     companion object {
         private const val PHOTO_FEED_ITEM_TYPE = 0
         private const val TEXT_FEED_ITEM_TYPE = 1
+        private const val TAG = "CompositeAdapter"
     }
 }
