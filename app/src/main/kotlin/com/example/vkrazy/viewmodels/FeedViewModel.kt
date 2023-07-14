@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vkrazy.data.local.FeedItem
+import com.example.vkrazy.data.local.ImageFeedItem
 import com.example.vkrazy.data.repository.PostRepository
 import kotlinx.coroutines.launch
 
@@ -13,7 +14,7 @@ class FeedViewModel(private val postRepository: PostRepository) : ViewModel() {
 
     init {
         val testData = listOf(
-            FeedItem(
+            ImageFeedItem(
                 id = 1,
                 userPhoto = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3f/TechCrunch_Disrupt_2019_%2848834434641%29_%28cropped%29.jpg/640px-TechCrunch_Disrupt_2019_%2848834434641%29_%28cropped%29.jpg",
                 username = "willsmith",

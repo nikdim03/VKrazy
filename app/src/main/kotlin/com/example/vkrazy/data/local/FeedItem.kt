@@ -1,10 +1,13 @@
 package com.example.vkrazy.data.local
 
-data class FeedItem(
-    val id: Int,
-    val userPhoto: String?,
-    val username: String,
-    val postImage: String?,
-    val likesText: String,
-    val captionText: String
-)
+interface FeedItem : Equatable {
+    val id: Int
+    fun getViewType(): Int
+}
+
+interface Equatable {
+    override fun equals(other: Any?): Boolean
+}
+
+const val PHOTO_FEED_ITEM_TYPE = 0
+const val TEXT_FEED_ITEM_TYPE = 1

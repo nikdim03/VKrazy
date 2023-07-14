@@ -2,8 +2,10 @@ package com.example.vkrazy.data.repository
 
 import android.util.Log
 import com.example.vkrazy.data.local.FeedItem
+import com.example.vkrazy.data.local.ImageFeedItem
 import com.example.vkrazy.data.local.PostItemDao
 import com.example.vkrazy.data.local.PostItemEntity
+import com.example.vkrazy.data.local.TextFeedItem
 import com.example.vkrazy.data.remote.VKApiService
 
 class PostRepository(
@@ -14,6 +16,24 @@ class PostRepository(
     private fun convertFeedItemsToEntities(feedItems: List<FeedItem>): List<PostItemEntity> {
         Log.d("PostRepository", "convertFeedItemsToEntities()")
         return feedItems.map { feedItem ->
+            var likes = 0
+            var ownerId: Long = 0
+            var text = ""
+            var attachments = ""
+            when (feedItem) {
+                is ImageFeedItem -> {
+                    likes = feedItem.likesText.replace(" likes", "").toInt()
+                    ownerId = feedItem.username.toLong()
+                    text = feedItem.captionText
+                    attachments = feedItem.postImage.toString()
+                }
+
+                is TextFeedItem -> {
+                    likes = feedItem.likesText.replace(" likes", "").toInt()
+                    ownerId = feedItem.username.toLong()
+                    text = feedItem.captionText
+                }
+            }
             PostItemEntity(
                 id = feedItem.id,
                 type = "",
@@ -25,15 +45,15 @@ class PostRepository(
                 marked_as_ads = 0,
                 can_set_category = false,
                 can_doubt_category = false,
-                attachments = "",
+                attachments = attachments,
                 is_favorite = false,
-                likes = feedItem.likesText.replace(" likes", "").toInt(),
-                owner_id = feedItem.username.toLong(),
+                likes = likes,
+                owner_id = ownerId,
                 post_id = 0,
                 post_source = "",
                 post_type = "",
                 reposts = 0,
-                text = feedItem.captionText,
+                text = text,
                 views = 0,
             )
         }
@@ -56,7 +76,11 @@ class PostRepository(
                     postItem.attachments.firstOrNull { it.type == "photo" }?.photo?.sizes?.last()?.url
                 val likesText = "${postItem.likes.count} likes"
                 val captionText = postItem.text
-                FeedItem(id, userPhoto, username, postImage, likesText, captionText)
+                if (postImage != null) {
+                    ImageFeedItem(id, userPhoto, username, postImage, likesText, captionText)
+                } else {
+                    TextFeedItem(id, userPhoto, username, likesText, captionText)
+                }
             }
         } else {
             null
@@ -84,10 +108,14 @@ class PostRepository(
                     val id = entity.id
                     val userPhoto = null
                     val username = "${entity.owner_id}"
-                    val postImage = null
+                    val postImage = entity.attachments
                     val likesText = "${entity.likes} likes"
                     val captionText = entity.text
-                    FeedItem(id, userPhoto, username, postImage, likesText, captionText)
+                    if (postImage != "null") {
+                        ImageFeedItem(id, userPhoto, username, postImage, likesText, captionText)
+                    } else {
+                        TextFeedItem(id, userPhoto, username, likesText, captionText)
+                    }
                 }
             } else {
                 null

@@ -9,13 +9,12 @@ import com.example.vkrazy.R
 import com.example.vkrazy.databinding.FragmentFeedBinding
 import com.example.vkrazy.viewmodels.FeedViewModel
 import com.example.vkrazy.viewmodels.MyApplication
-import com.example.vkrazy.views.adapters.FeedAdapter
+import com.example.vkrazy.views.adapters.CompositeAdapter
 import javax.inject.Inject
 
 class FeedFragment : Fragment(R.layout.fragment_feed) {
     @Inject
     lateinit var viewModel: FeedViewModel
-    private lateinit var adapter: FeedAdapter
     private lateinit var binding: FragmentFeedBinding
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -24,13 +23,12 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         Log.d("FeedFragment", "onViewCreated()")
         (requireActivity().application as MyApplication).feedComponent.inject(this)
 
-        adapter = FeedAdapter(mutableListOf())
-        binding.feedRecycler.adapter = adapter
+        binding.feedRecycler.adapter = CompositeAdapter(mutableListOf())
         binding.feedRecycler.layoutManager = LinearLayoutManager(requireContext())
         viewModel.onViewCreated()
 
         viewModel.feedItems.observe(viewLifecycleOwner) { feedItems ->
-            feedItems?.let { adapter.setData(it) }
+            feedItems?.let { (binding.feedRecycler.adapter as CompositeAdapter).setData(it.toMutableList()) }
         }
     }
 

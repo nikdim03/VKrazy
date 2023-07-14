@@ -6,30 +6,31 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.vkrazy.R
-import com.example.vkrazy.data.local.FeedItem
-import com.example.vkrazy.databinding.FeedItemBinding
+import com.example.vkrazy.data.local.ImageFeedItem
+import com.example.vkrazy.databinding.ImageFeedItemBinding
 
-class FeedAdapter(private var data: MutableList<FeedItem>) :
-    RecyclerView.Adapter<FeedAdapter.FeedViewHolder>() {
-    private lateinit var binding: FeedItemBinding
+class ImageFeedItemAdapter(private val photoItems: MutableList<ImageFeedItem>) :
+    RecyclerView.Adapter<ImageFeedItemAdapter.ImageFeedItemViewHolder>() {
+    private lateinit var binding: ImageFeedItemBinding
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FeedViewHolder {
-        binding = FeedItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return FeedViewHolder(binding)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageFeedItemViewHolder {
+        binding = ImageFeedItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ImageFeedItemViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: FeedViewHolder, position: Int) {
-        val item = data[position]
+
+    override fun onBindViewHolder(holder: ImageFeedItemViewHolder, position: Int) {
+        val item = photoItems[position]
         holder.bind(item)
     }
 
     override fun getItemCount(): Int {
-        return data.size
+        return photoItems.size
     }
 
-    class FeedViewHolder(private val binding: FeedItemBinding) :
+    class ImageFeedItemViewHolder(private val binding: ImageFeedItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: FeedItem) {
+        fun bind(item: ImageFeedItem) {
             if (item.userPhoto is String) {
                 Glide.with(binding.root).load(item.userPhoto).into(binding.userPhotoImage)
             } else {
@@ -46,11 +47,11 @@ class FeedAdapter(private var data: MutableList<FeedItem>) :
         }
     }
 
-    fun setData(newData: List<FeedItem>) {
-        val diffCallback = FeedDiffCallback(data, newData)
+    fun setData(newData: List<ImageFeedItem>) {
+        val diffCallback = FeedDiffCallback(photoItems, newData)
         val diffResult = DiffUtil.calculateDiff(diffCallback)
-        data.clear()
-        data.addAll(newData)
+        photoItems.clear()
+        photoItems.addAll(newData)
         diffResult.dispatchUpdatesTo(this)
     }
 }
