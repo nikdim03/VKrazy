@@ -8,13 +8,14 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
 import com.example.authenticator.AuthenticationHelper
 import com.example.vkrazy.R
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class AuthorizationViewModel(private val application: Application) : AndroidViewModel(application) {
     private lateinit var accountManager: AccountManager
-    val loginLiveData = MutableLiveData<String>()
+    private val _loginLiveData = MutableStateFlow<String?>(null)
+    val loginLiveData = _loginLiveData
 
     fun getAuthUrl() = buildString {
         append("https://oauth.vk.com/authorize?")
@@ -46,7 +47,7 @@ class AuthorizationViewModel(private val application: Application) : AndroidView
         val sharedPreferences =
             application.getSharedPreferences(AUTH_PREFERENCES, Context.MODE_PRIVATE)
         sharedPreferences.edit().putString(AUTH_TOKEN, authToken).apply()
-        loginLiveData.postValue(authToken)
+        _loginLiveData.value = authToken
     }
 
     private fun getAccountsWithAuthToken(callback: (Account) -> Unit, activity: Activity) {

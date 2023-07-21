@@ -8,12 +8,14 @@ import android.widget.CheckBox
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.vkrazy.R
 import com.example.vkrazy.databinding.FragmentFeedBinding
 import com.example.vkrazy.viewmodels.FeedViewModel
 import com.example.vkrazy.viewmodels.MyApplication
 import com.example.vkrazy.views.adapters.CompositeAdapter
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class FeedFragment : Fragment(R.layout.fragment_feed) {
@@ -31,10 +33,13 @@ class FeedFragment : Fragment(R.layout.fragment_feed) {
         binding.feedRecycler.layoutManager = LinearLayoutManager(requireContext())
         viewModel.onViewCreated()
 
-        viewModel.feedItems.observe(viewLifecycleOwner) { feedItems ->
-            feedItems?.let { (binding.feedRecycler.adapter as CompositeAdapter).setData(it.toMutableList()) }
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.feedItems.collect { feedItems ->
+                feedItems?.let {
+                    (binding.feedRecycler.adapter as CompositeAdapter).setData(it.toMutableList())
+                }
+            }
         }
-
         binding.addPostButton.setOnClickListener {
             showAddPostPopup()
         }

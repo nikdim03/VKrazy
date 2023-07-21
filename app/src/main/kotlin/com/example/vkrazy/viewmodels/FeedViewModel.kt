@@ -1,18 +1,18 @@
 package com.example.vkrazy.viewmodels
 
-import androidx.lifecycle.MutableLiveData
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.vkrazy.data.local.FeedItem
 import com.example.vkrazy.data.local.ImageFeedItem
 import com.example.vkrazy.data.repository.PostRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class FeedViewModel(private val postRepository: PostRepository) : ViewModel() {
-//    TODO:
-//    flow
-private val _feedItems = MutableLiveData<List<FeedItem>?>()
-    val feedItems: MutableLiveData<List<FeedItem>?> = _feedItems
+    private val _feedItems = MutableStateFlow<List<FeedItem>?>(null)
+    val feedItems: StateFlow<List<FeedItem>?> = _feedItems
     var offset = 0
 
     init {
@@ -47,6 +47,7 @@ private val _feedItems = MutableLiveData<List<FeedItem>?>()
     }
 
     private fun appendPosts(oldPosts: List<FeedItem>?, newPosts: List<FeedItem>?): List<FeedItem>? {
+        Log.d(TAG, "appendPosts(oldPosts = $oldPosts, newPosts = $newPosts)")
         return if (oldPosts == null) {
             newPosts
         } else if (newPosts == null) {
